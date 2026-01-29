@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily AIDE check
+
+[Timer]
+OnCalendar=*-*-* {{ '%02d' | format(ubtu24cis_aide_cron_hour | int) }}:{{ '%02d' | format(ubtu24cis_aide_cron_minute | int) }}:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
