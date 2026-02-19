@@ -216,7 +216,7 @@
   block:
     - name: "PRELIM | PATCH | Ensure auditd is installed"
       ansible.builtin.package:
-        name: ['auditd', 'audispd-plugins']
+        name: ['auditd']
         state: present
 
     - name: "PRELIM | AUDIT | Audit conf and rules files | list files"

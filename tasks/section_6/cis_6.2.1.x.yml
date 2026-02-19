@@ -3,7 +3,7 @@
 - name: "6.2.1.1 | PATCH | Ensure auditd packages are installed"
   when:
     - ubtu24cis_rule_6_2_1_1
-    - "'auditd' not in ansible_facts.packages or 'audispd-plugins' not in ansible_facts.packages"
+    - "'auditd' not in ansible_facts.packages"
   tags:
     - level2-server
     - level2-workstation
@@ -15,7 +15,7 @@
     - NIST800-53R5_SI-5
     - auditd
   ansible.builtin.package:
-    name: ['auditd', 'audispd-plugins']
+    name: ['auditd']
     state: present
 
 - name: "6.2.1.2 | PATCH | Ensure auditd service is enabled and active"
