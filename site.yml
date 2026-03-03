@@ -149,6 +149,47 @@
         mode: '0600'
       ignore_errors: true
 
+    # --- Sysctl: Clean up commented-out rp_filter lines in sysctl.conf ---
+    - name: USG Override - Remove commented rp_filter lines from sysctl.conf
+      ansible.builtin.lineinfile:
+        path: /etc/sysctl.conf
+        regexp: '^#net.ipv4.conf.*rp_filter'
+        state: absent
+      ignore_errors: true
+
+    # --- Sysctl: Also ensure rp_filter values are in sysctl.conf (not just sysctl.d) ---
+    - name: USG Override - Ensure rp_filter in sysctl.conf
+      ansible.builtin.lineinfile:
+        path: /etc/sysctl.conf
+        regexp: '{{ item.regexp }}'
+        line: '{{ item.line }}'
+      loop:
+        - { regexp: '^net.ipv4.conf.all.rp_filter', line: 'net.ipv4.conf.all.rp_filter=1' }
+        - { regexp: '^net.ipv4.conf.default.rp_filter', line: 'net.ipv4.conf.default.rp_filter=1' }
+      ignore_errors: true
+
+    # --- Timesyncd: Mask the service for USG ---
+    - name: USG Override - Mask systemd-timesyncd
+      ansible.builtin.systemd:
+        name: systemd-timesyncd
+        masked: true
+      ignore_errors: true
+
+    # --- rsync: Remove the package entirely ---
+    - name: USG Override - Remove rsync package
+      ansible.builtin.apt:
+        name: rsync
+        state: absent
+        purge: true
+      ignore_errors: true
+
+    # --- AIDE: Ensure DB is properly installed ---
+    - name: USG Override - Ensure AIDE database is in place
+      ansible.builtin.command: aideinit -y -f
+      async: 1800
+      poll: 0
+      ignore_errors: true
+
   handlers:
     - name: Restart journald
       ansible.builtin.systemd:
