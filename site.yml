@@ -5,3 +5,12 @@
   become: true
   roles:
     - role: "{{ playbook_dir }}"
+  post_tasks:
+    - name: USG Override - Assemble pwquality.conf.d drop-ins into the main pwquality.conf file
+      ansible.builtin.assemble:
+        src: /etc/security/pwquality.conf.d
+        dest: /etc/security/pwquality.conf
+        owner: root
+        group: root
+        mode: '0644'
+      ignore_errors: true

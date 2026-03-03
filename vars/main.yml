@@ -96,13 +96,3 @@ ubtu24cis_sysctl_network_conf: /etc/sysctl.conf
 ubtu24cis_firewall_package: nftables
 ubtu24cis_rule_4_2_1: false        # Don't install UFW
 ubtu24cis_rule_4_2_3: false        # Don't verify UFW is enabled
-
-# --- 13. Password Quality (USG expects them strictly in /etc/security/pwquality.conf) ---
-ubtu24cis_passwd_difok_file: etc/security/pwquality.conf
-ubtu24cis_passwd_minlen_file: etc/security/pwquality.conf
-ubtu24cis_passwd_complex_file: etc/security/pwquality.conf
-ubtu24cis_passwd_maxrepeat_file: etc/security/pwquality.conf
-ubtu24cis_passwd_maxsequence_file: etc/security/pwquality.conf
-ubtu24cis_passwd_dictcheck_file: etc/security/pwquality.conf
-ubtu24cis_passwd_quality_enforce_file: etc/security/pwquality.conf
-ubtu24cis_passwd_quality_enforce_root_file: etc/security/pwquality.conf
