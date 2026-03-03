@@ -94,6 +94,61 @@
         masked: true
       ignore_errors: true
 
+    # --- Sysctl: Fix rp_filter conflict ---
+    # /etc/sysctl.d/10-network-security.conf sets rp_filter=2 which overrides our =1
+    - name: USG Override - Fix rp_filter in 10-network-security.conf
+      ansible.builtin.lineinfile:
+        path: /etc/sysctl.d/10-network-security.conf
+        regexp: '{{ item.regexp }}'
+        line: '{{ item.line }}'
+      loop:
+        - { regexp: '^net.ipv4.conf.default.rp_filter', line: 'net.ipv4.conf.default.rp_filter=1' }
+        - { regexp: '^net.ipv4.conf.all.rp_filter', line: 'net.ipv4.conf.all.rp_filter=1' }
+      ignore_errors: true
+
+    - name: USG Override - Reload sysctl
+      ansible.builtin.command: sysctl --system
+      ignore_errors: true
+
+    # --- PAM: Run pam-auth-update to properly enable faillock and pwhistory ---
+    - name: USG Override - Enable pam_faillock via pam-auth-update
+      ansible.builtin.command: pam-auth-update --enable faillock
+      ignore_errors: true
+
+    - name: USG Override - Enable pam_faillock_notify via pam-auth-update
+      ansible.builtin.command: pam-auth-update --enable faillock_notify
+      ignore_errors: true
+
+    - name: USG Override - Enable pam_pwhistory via pam-auth-update
+      ansible.builtin.command: pam-auth-update --enable pwhistory
+      ignore_errors: true
+
+    - name: USG Override - Enable pam_pwquality via pam-auth-update
+      ansible.builtin.command: pam-auth-update --enable pwquality
+      ignore_errors: true
+
+    # --- File Permissions: Fix /etc/group- and shadow backups ---
+    - name: USG Override - Fix backup file permissions
+      ansible.builtin.file:
+        path: "{{ item }}"
+        owner: root
+        group: root
+        mode: '0600'
+      loop:
+        - /etc/group-
+        - /etc/gshadow-
+        - /etc/shadow-
+      ignore_errors: true
+
+    # --- GRUB: Fix ownership ---
+    - name: USG Override - Fix /boot/grub/grub.cfg ownership
+      ansible.builtin.file:
+        path: /boot/grub/grub.cfg
+        owner: root
+        group: root
+        mode: '0600'
+      ignore_errors: true
+
   handlers:
     - name: Restart journald
       ansible.builtin.systemd:
