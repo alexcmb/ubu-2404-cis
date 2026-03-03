@@ -92,7 +92,8 @@ ubtu24cis_aide_scan: timer        # USG profile strictly expects systemd timer i
 ubtu24cis_sysctl_kernel_conf: /etc/sysctl.conf
 ubtu24cis_sysctl_network_conf: /etc/sysctl.conf
 
-# --- 12. Firewall (USG expects Nftables, not UFW) ---
-ubtu24cis_firewall_package: nftables
-ubtu24cis_rule_4_2_1: false        # Don't install UFW
-ubtu24cis_rule_4_2_3: false        # Don't verify UFW is enabled
+# --- 12. Firewall ---
+# NOTE: USG expects nftables but this Ansible role does NOT support nftables
+# (tasks are commented out). Keeping UFW which the role manages correctly.
+# The USG nftables failures (4.3.x) are expected and can be ignored.
+# ubtu24cis_firewall_package: ufw  # Default - no override needed
