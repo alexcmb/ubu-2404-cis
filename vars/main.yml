@@ -44,7 +44,7 @@ ubtu24cis_rule_2_1_2: false     # avahi-daemon (Bonjour/Zeroconf)
 ubtu24cis_rule_2_1_3: false     # isc-dhcp-server (DHCP Server)
 ubtu24cis_rule_2_1_4: false     # slapd (LDAP Server)
 ubtu24cis_rule_2_1_5: false     # ypserv (NIS Server)
-ubtu24cis_rule_2_1_6: false     # cups (Print Server)
+# ubtu24cis_rule_2_1_6: false   # cups (Print Server) - Let Ansible remove it for USG
 ubtu24cis_rule_2_1_7: false     # rpcbind (RPC)
 ubtu24cis_rule_2_1_8: false     # rsync (Rsync Daemon)
 ubtu24cis_rule_2_1_9: false     # nfs-server (NFS)
@@ -56,6 +56,11 @@ ubtu24cis_rule_2_1_15: false    # snmpd (SNMP Server)
 ubtu24cis_rule_2_1_21: false    # Postfix MTA — absent on cloud VMs
 ubtu24cis_rule_2_1_22: false    # NIS — absent on Azure
 # ubtu24cis_rule_2_1_11: false  # Uncomment if you run a web server (Nginx/Apache)
+
+# Enable purging of xinetd, prelink, and other legacy packages explicitly to satisfy USG
+ubtu24cis_purge_apt: true
+ubtu24cis_xinetd_server: false
+ubtu24cis_prelink_disable: true
 
 # --- 5. Time Synchronization (Azure uses Chrony) ---
 ubtu24cis_time_sync_tool: chrony          # FIXED: was 'ubtu24cis_time_synchronization' (ignored)
@@ -76,3 +81,28 @@ ubtu24cis_rule_6_1_2_1_4: false   # Skip enabling the missing journal-remote ser
 
 # --- 9. PAM - Ensure nullok is not permitted ---
 ubtu24cis_pam_unix_nullok: false  # Default in role; explicitly disabled
+
+# --- 10. AIDE Timeout ---
+ubtu24cis_aide_init_async: 1800   # Increase AIDE init timeout to 30 mins (default 600s is too short)
+ubtu24cis_aide_init_poll: 10
+ubtu24cis_aide_scan: timer        # USG profile strictly expects systemd timer instead of cron
+
+# --- 11. USG-Specific Networking Overrides ---
+# USG scanner looks strictly in /etc/sysctl.conf instead of /etc/sysctl.d/98_cis_kernel.conf
+ubtu24cis_sysctl_kernel_conf: /etc/sysctl.conf
+ubtu24cis_sysctl_network_conf: /etc/sysctl.conf
+
+# --- 12. Firewall (USG expects Nftables, not UFW) ---
+ubtu24cis_firewall_package: nftables
+ubtu24cis_rule_4_2_1: false        # Don't install UFW
+ubtu24cis_rule_4_2_3: false        # Don't verify UFW is enabled
+
+# --- 13. Password Quality (USG expects them strictly in /etc/security/pwquality.conf) ---
+ubtu24cis_passwd_difok_file: etc/security/pwquality.conf
+ubtu24cis_passwd_minlen_file: etc/security/pwquality.conf
+ubtu24cis_passwd_complex_file: etc/security/pwquality.conf
+ubtu24cis_passwd_maxrepeat_file: etc/security/pwquality.conf
+ubtu24cis_passwd_maxsequence_file: etc/security/pwquality.conf
+ubtu24cis_passwd_dictcheck_file: etc/security/pwquality.conf
+ubtu24cis_passwd_quality_enforce_file: etc/security/pwquality.conf
+ubtu24cis_passwd_quality_enforce_root_file: etc/security/pwquality.conf

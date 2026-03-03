@@ -40,6 +40,8 @@
         - "'sssd' in item or 'SSSD' in item"
       ansible.builtin.file:
         path: "{{ item }}"
+        owner: root
+        group: root
         mode: 'ug-x,o-wx'
       loop: "{{ discovered_system_logfiles.stdout_lines }}"
       failed_when: discovered_file_exists.state not in '[ file, absent ]'
