@@ -105,7 +105,9 @@ ubtu24cis_pam_create_pwhistory_files: true
 ubtu24cis_pam_auth_pwhistory: true
 ubtu24cis_pam_create_pwquality_files: true
 ubtu24cis_pam_auth_pwquality: true
-ubtu24cis_pam_create_pamunix_file: true
+# NOTE: Do NOT enable ubtu24cis_pam_create_pamunix_file when faillock is enabled
+# (default comment: "Should NOT be enabled if allowing custom config that enabled pam_faillock")
+ubtu24cis_pam_create_pamunix_file: false
 ubtu24cis_pam_auth_unix: true
 
 # --- 14. Force AIDE DB recreation to fix aidecheck service ---
