@@ -97,3 +97,16 @@ ubtu24cis_sysctl_network_conf: /etc/sysctl.conf
 # (tasks are commented out). Keeping UFW which the role manages correctly.
 # The USG nftables failures (4.3.x) are expected and can be ignored.
 # ubtu24cis_firewall_package: ufw  # Default - no override needed
+
+# --- 13. PAM - Enable faillock, pwhistory, and pwquality modules ---
+ubtu24cis_pam_create_faillock_files: true
+ubtu24cis_pam_auth_faillock: true
+ubtu24cis_pam_create_pwhistory_files: true
+ubtu24cis_pam_auth_pwhistory: true
+ubtu24cis_pam_create_pwquality_files: true
+ubtu24cis_pam_auth_pwquality: true
+ubtu24cis_pam_create_pamunix_file: true
+ubtu24cis_pam_auth_unix: true
+
+# --- 14. Force AIDE DB recreation to fix aidecheck service ---
+ubtu24cis_aide_db_recreate: true
