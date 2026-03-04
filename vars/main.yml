@@ -116,3 +116,11 @@ ubtu24cis_aide_db_recreate: true
 # --- 15. USG Overrides ---
 # Enable USG-specific fixes that reconcile OpenSCAP expectations with the Ansible CIS role
 ubtu24cis_usg_overrides: true
+
+# --- 16. Journald Logging ---
+# Set valid values to prevent commented-out defaults in rotation.conf
+ubtu24cis_journald_systemmaxuse: "1G"
+ubtu24cis_journald_systemkeepfree: "500M"
+ubtu24cis_journald_runtimemaxuse: "250M"
+ubtu24cis_journald_runtimekeepfree: "100M"
+ubtu24cis_journald_maxfilesec: "1month"
