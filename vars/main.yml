@@ -112,3 +112,7 @@ ubtu24cis_pam_auth_unix: true
 
 # --- 14. Force AIDE DB recreation to fix aidecheck service ---
 ubtu24cis_aide_db_recreate: true
+
+# --- 15. USG Overrides ---
+# Enable USG-specific fixes that reconcile OpenSCAP expectations with the Ansible CIS role
+ubtu24cis_usg_overrides: true

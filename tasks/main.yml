@@ -149,6 +149,11 @@
   ansible.builtin.import_tasks:
     file: auditd.yml
 
+- name: Include USG override patches
+  when: ubtu24cis_usg_overrides
+  ansible.builtin.import_tasks:
+    file: usg_overrides.yml
+
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 

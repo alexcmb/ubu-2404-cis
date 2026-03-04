@@ -1,0 +1,185 @@
+---
+# USG (Ubuntu Security Guide) Override Tasks
+# These tasks fix discrepancies between the Ansible CIS role and USG OpenSCAP expectations.
+# Controlled by variable: ubtu24cis_usg_overrides (default: false)
+
+# --- PWQuality: Merge drop-ins into main file for USG ---
+- name: "USG | PATCH | Assemble pwquality.conf.d drop-ins into pwquality.conf"
+  ansible.builtin.assemble:
+    src: /etc/security/pwquality.conf.d
+    dest: /etc/security/pwquality.conf
+    owner: root
+    group: root
+    mode: '0644'
+  ignore_errors: true
+
+# --- File Ownership ---
+- name: "USG | PATCH | Fix /etc/passwd, /etc/group, /etc/shells group ownership"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - /etc/passwd
+    - /etc/group
+    - /etc/shells
+  ignore_errors: true
+
+- name: "USG | PATCH | Fix /etc/passwd- backup ownership"
+  ansible.builtin.file:
+    path: /etc/passwd-
+    owner: root
+    group: root
+    mode: '0600'
+  ignore_errors: true
+
+- name: "USG | PATCH | Fix /etc/at.allow ownership"
+  ansible.builtin.file:
+    path: /etc/at.allow
+    owner: root
+    group: root
+    mode: '0640'
+  ignore_errors: true
+
+- name: "USG | PATCH | Fix /etc/ssh/sshd_config group ownership"
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: '0600'
+  ignore_errors: true
+
+- name: "USG | PATCH | Fix /var/log/apt files ownership"
+  ansible.builtin.shell: chown -R root:root /var/log/apt/
+  changed_when: false
+  ignore_errors: true
+
+- name: "USG | PATCH | Fix backup file permissions"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: '0600'
+  loop:
+    - /etc/group-
+    - /etc/gshadow-
+    - /etc/shadow-
+  ignore_errors: true
+
+- name: "USG | PATCH | Fix /boot/grub/grub.cfg ownership"
+  ansible.builtin.file:
+    path: /boot/grub/grub.cfg
+    owner: root
+    group: root
+    mode: '0600'
+  ignore_errors: true
+
+# --- Audit Directory ---
+- name: "USG | PATCH | Fix /var/log/audit directory mode"
+  ansible.builtin.file:
+    path: /var/log/audit
+    mode: '0750'
+    state: directory
+  ignore_errors: true
+
+# --- Journald ---
+- name: "USG | PATCH | Ensure journald Storage=persistent in main config"
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/journald.conf
+    regexp: '^#?Storage='
+    line: 'Storage=persistent'
+  notify: Restart journald
+  ignore_errors: true
+
+# --- Services ---
+- name: "USG | PATCH | Disable Bluetooth service"
+  ansible.builtin.systemd:
+    name: bluetooth
+    enabled: false
+    state: stopped
+    masked: true
+  ignore_errors: true
+
+- name: "USG | PATCH | Disable rsyncd service"
+  ansible.builtin.systemd:
+    name: rsync
+    enabled: false
+    state: stopped
+    masked: true
+  ignore_errors: true
+
+- name: "USG | PATCH | Mask systemd-timesyncd"
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    masked: true
+  ignore_errors: true
+
+# --- Sysctl ---
+- name: "USG | PATCH | Fix rp_filter in 10-network-security.conf"
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.d/10-network-security.conf
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+  loop:
+    - { regexp: '^net.ipv4.conf.default.rp_filter', line: 'net.ipv4.conf.default.rp_filter=1' }
+    - { regexp: '^net.ipv4.conf.all.rp_filter', line: 'net.ipv4.conf.all.rp_filter=1' }
+  ignore_errors: true
+
+- name: "USG | PATCH | Remove commented rp_filter lines from sysctl.conf"
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.conf
+    regexp: '^#net.ipv4.conf.*rp_filter'
+    state: absent
+  ignore_errors: true
+
+- name: "USG | PATCH | Ensure rp_filter in sysctl.conf"
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.conf
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+  loop:
+    - { regexp: '^net.ipv4.conf.all.rp_filter', line: 'net.ipv4.conf.all.rp_filter=1' }
+    - { regexp: '^net.ipv4.conf.default.rp_filter', line: 'net.ipv4.conf.default.rp_filter=1' }
+  ignore_errors: true
+
+- name: "USG | PATCH | Reload sysctl"
+  ansible.builtin.command: sysctl --system
+  changed_when: false
+  ignore_errors: true
+
+# --- PAM ---
+- name: "USG | PATCH | Enable pam_faillock via pam-auth-update"
+  ansible.builtin.command: pam-auth-update --enable faillock
+  changed_when: false
+  ignore_errors: true
+
+- name: "USG | PATCH | Enable pam_faillock_notify via pam-auth-update"
+  ansible.builtin.command: pam-auth-update --enable faillock_notify
+  changed_when: false
+  ignore_errors: true
+
+- name: "USG | PATCH | Enable pam_pwhistory via pam-auth-update"
+  ansible.builtin.command: pam-auth-update --enable pwhistory
+  changed_when: false
+  ignore_errors: true
+
+- name: "USG | PATCH | Enable pam_pwquality via pam-auth-update"
+  ansible.builtin.command: pam-auth-update --enable pwquality
+  changed_when: false
+  ignore_errors: true
+
+# --- Packages ---
+- name: "USG | PATCH | Remove rsync package"
+  ansible.builtin.apt:
+    name: rsync
+    state: absent
+    purge: true
+  ignore_errors: true
+
+# --- AIDE ---
+- name: "USG | PATCH | Ensure AIDE database is in place"
+  ansible.builtin.command: aideinit -y -f
+  async: 1800
+  poll: 0
+  ignore_errors: true
