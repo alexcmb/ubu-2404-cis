@@ -316,6 +316,20 @@ ubtu24cis_section7: true  # System Maintenance
 # Safety Settings
 ubtu24cis_disruption_high: false  # Disable highly disruptive tasks initially
 skip_reboot: true                  # Skip automatic reboot
+
+# ==========================================
+# USG COMPLIANCE OVERRIDES & LOGGING
+# ==========================================
+
+# Enable specific patches to reach ~91.5% USG (OpenSCAP) compliance
+ubtu24cis_usg_overrides: true
+
+# Journald Log Rotation (must be set to prevent template errors)
+ubtu24cis_journald_systemmaxuse: "1G"
+ubtu24cis_journald_systemkeepfree: "500M"
+ubtu24cis_journald_runtimemaxuse: "250M"
+ubtu24cis_journald_runtimekeepfree: "100M"
+ubtu24cis_journald_maxfilesec: "1month"
 ```
 
 ### Network & Firewall Settings
@@ -689,7 +703,7 @@ ubtu24cis_aide_cron_minute: 0
 # Database settings
 ubtu24cis_aide_db_file: /var/lib/aide/aide.db
 ubtu24cis_aide_db_file_age: 1w  # Rebuild if older than 1 week
-ubtu24cis_aide_db_recreate: false
+ubtu24cis_aide_db_recreate: true  # Force rebuild (recommended for USG compliance)
 
 # Initialization timeout
 ubtu24cis_aide_init_async: 600    # Max seconds to wait
