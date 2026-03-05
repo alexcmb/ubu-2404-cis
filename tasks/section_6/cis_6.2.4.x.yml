@@ -70,7 +70,7 @@
 
     - name: "6.2.4.4 | PATCH | Ensure the audit log file directory mode is configured | set permissions"
       ansible.builtin.file:
-        path: "{{ discovered_auditlog_dir.stat.path }}"
+        path: "{{ prelim_auditd_logfile.stdout | dirname }}"
         state: directory
         mode: 'g-w,o-rwx'
 
