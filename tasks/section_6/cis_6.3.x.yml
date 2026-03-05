@@ -118,6 +118,7 @@
       loop:
         - dailyaidecheck.service
         - dailyaidecheck.timer
+      ignore_errors: "{{ ansible_check_mode }}"
 
 - name: "6.3.3 | PATCH | Ensure cryptographic mechanisms are used to protect the integrity of audit tools"
   when:
